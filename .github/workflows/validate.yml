@@ -34,7 +34,9 @@ jobs:
           echo "$HOME/sfdx/bin" >> $GITHUB_PATH
 
           ~/sfdx/bin/sfdx version
+      - name: Setup server key
+        run: echo "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" > server.key
       - name: JWT Authentication to target Org
-        run: sf org login jwt --client-id ${{ secrets.SALESFORCE_CONSUMER_KEY }} --jwt-key-file "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" --username ${{ vars.SALESFORCE_USERNAME }} --set-default-dev-hub -a targetOrg
+        run: sf org login jwt --client-id ${{ secrets.SALESFORCE_CONSUMER_KEY }} --jwt-key-file server.key --username ${{ vars.SALESFORCE_USERNAME }} --set-default-dev-hub -a targetOrg
       - name: Deploy Code without running tests
         run: sf project deploy start -x manifest/package.xml --pre-destructive-changes manifest/destructiveChangesPre.xml --post-destructive-changes manifest/destructiveChangesPost.xml -l RunLocalTests -w 1000 --verbose --json --target-org targetOrg -g --dry-run -c
