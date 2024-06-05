@@ -32,7 +32,9 @@ jobs:
           echo "$HOME/sfdx/bin" >> $GITHUB_PATH
 
           ~/sfdx/bin/sfdx version
+      - name: Decrypt the server.key.enc file & store inside assets folder
+        run: openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out server.key -base64 -K ${{ secrets.DECRYPTION_KEY }} -iv ${{ secrets.DECRYPTION_IV }}
       - name: JWT Authentication to target Org
-        run: sf org login jwt --client-id ${{ secrets.SALESFORCE_CONSUMER_KEY }} --jwt-key-file "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" --username ${{ vars.SALESFORCE_USERNAME }} --set-default-dev-hub -a targetOrg
+        run: sf org login jwt --client-id ${{ secrets.SALESFORCE_CONSUMER_KEY }} --jwt-key-file server.key --username ${{ vars.SALESFORCE_USERNAME }} --set-default-dev-hub -a targetOrg
       - name: Deploy Code without running tests
         run: sf project deploy start -x manifest/package.xml --pre-destructive-changes manifest/destructiveChangesPre.xml --post-destructive-changes manifest/destructiveChangesPost.xml -l NoTestRun -w 1000 --verbose --json --target-org targetOrg -g -c
