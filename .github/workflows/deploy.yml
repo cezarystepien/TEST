@@ -10,7 +10,7 @@ jobs:
   Deploy-To-INT:
     if: github.ref == 'refs/heads/int'
     runs-on: ubuntu-latest
-    environment: DEV
+    environment: INT
     steps:
       - uses: actions/setup-node@v3
         with:
